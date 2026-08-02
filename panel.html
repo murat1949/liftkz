@@ -27,7 +27,13 @@
     background: #0c1712;
     border-radius: 28px;
     overflow: hidden;
-    min-height: 720px;
+    height: 720px;
+    display: flex;
+    flex-direction: column;
+  }
+  .scroll-area {
+    flex: 1;
+    overflow-y: auto;
   }
   .statusbar {
     display: flex;
@@ -128,7 +134,8 @@
 
   .footer {
     display: flex; justify-content: space-around; align-items: center;
-    padding: 12px 0 18px; border-top: 1px solid #1c2e24; margin-top: 6px;
+    padding: 10px 0 14px; border-top: 1px solid #1c2e24;
+    background: #0c1712; flex-shrink: 0;
   }
   .footer .item { color: #5c7b6c; font-size: 10px; text-align: center; cursor: pointer; }
   .footer .item.active { color: #3fb87f; }
@@ -180,6 +187,7 @@
 <body>
   <div class="phone">
     <div class="screen">
+      <div class="scroll-area">
       <div class="statusbar"><span>9:41</span><span>●●●● 5G  100%</span></div>
 
       <div class="topbar">
@@ -307,6 +315,8 @@
         <div class="list" id="notifyList">
           <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
         </div>
+      </div>
+
       </div>
 
       <div class="footer">
