@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лифт Кз Сервис — Панель руководителя</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: #0d1512;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 16px;
+  }
+  .phone {
+    width: 375px;
+    background: linear-gradient(180deg, #0f1e17 0%, #0a1410 100%);
+    border-radius: 40px;
+    padding: 14px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    border: 2px solid #1c2b23;
+  }
+  .screen {
+    background: #0c1712;
+    border-radius: 28px;
+    overflow: hidden;
+    min-height: 720px;
+  }
+  .statusbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 22px 4px;
+    color: #dfe8e2;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px 18px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-img {
+    height: 34px;
+    width: auto;
+    border-radius: 6px;
+    background: #ffffff;
+    padding: 3px 6px;
+  }
+  .brand-text { color: #eef4f0; font-size: 14px; font-weight: 600; line-height: 1.1; }
+  .brand-sub { color: #7ea892; font-size: 10px; letter-spacing: 0.06em; }
+  .menu-dot { color: #7ea892; font-size: 20px; }
+
+  .hero { padding: 4px 20px 18px; }
+  .hero-label { color: #7ea892; font-size: 12px; margin-bottom: 4px; }
+  .hero-title { color: #ffffff; font-size: 20px; font-weight: 600; line-height: 1.3; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 0 20px 18px;
+  }
+  .stat {
+    background: #12211a;
+    border: 1px solid #1e352a;
+    border-radius: 14px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-num { color: #ffffff; font-size: 20px; font-weight: 700; }
+  .stat-label { color: #8fac9d; font-size: 10.5px; margin-top: 2px; }
+  .stat.warn .stat-num { color: #f0b23f; }
+  .stat.ok .stat-num { color: #3fb87f; }
+
+  .section-title {
+    color: #cfe0d7; font-size: 13px; font-weight: 600;
+    padding: 6px 20px 10px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .section-title span.all { color: #7ea892; font-size: 12px; font-weight: 400; }
+
+  .list { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .row {
+    background: #101d17;
+    border: 1px solid #1c2e24;
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .row-left { display: flex; align-items: center; gap: 10px; }
+  .badge {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #0c1712;
+  }
+  .badge.to1 { background: #6fc98f; }
+  .badge.to2 { background: #f0c23f; }
+  .badge.to3 { background: #f0834f; }
+  .row-obj { color: #eef4f0; font-size: 13.5px; font-weight: 500; }
+  .row-sub { color: #7ea892; font-size: 11.5px; margin-top: 1px; }
+  .row-right { text-align: right; }
+  .row-date { color: #eef4f0; font-size: 12.5px; font-weight: 600; }
+  .row-tag { font-size: 10px; margin-top: 2px; }
+  .row-tag.soon { color: #f0b23f; }
+  .row-tag.plan { color: #7ea892; }
+
+  .footer {
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 12px 0 18px; border-top: 1px solid #1c2e24; margin-top: 6px;
+  }
+  .footer .item { color: #5c7b6c; font-size: 10px; text-align: center; }
+  .footer .item.active { color: #3fb87f; }
+  .footer .dot {
+    width: 20px; height: 20px; margin: 0 auto 3px;
+    border-radius: 6px; background: currentColor; opacity: 0.15;
+  }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="screen">
+      <div class="statusbar"><span>9:41</span><span>●●●● 5G  100%</span></div>
+
+      <div class="topbar">
+        <div class="brand">
+          <img src="assets/logo.png" alt="Лифт Кз Сервис" class="logo-img">
+          <div>
+            <div class="brand-text">Лифт Кз Сервис</div>
+            <div class="brand-sub">ПАНЕЛЬ РУКОВОДИТЕЛЯ</div>
+          </div>
+        </div>
+        <div class="menu-dot">&#8942;</div>
+      </div>
+
+      <div class="hero">
+        <div class="hero-label">Парк оборудования</div>
+        <div class="hero-title">Все объекты под контролем — одним взглядом</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num">350</div>
+          <div class="stat-label">Всего в парке</div>
+        </div>
+        <div class="stat warn">
+          <div class="stat-num">12</div>
+          <div class="stat-label">ТО на этой неделе</div>
+        </div>
+        <div class="stat ok">
+          <div class="stat-num">0</div>
+          <div class="stat-label">Просрочено</div>
+        </div>
+      </div>
+
+      <div class="section-title">
+        Ближайшее обслуживание
+        <span class="all">все объекты &rsaquo;</span>
+      </div>
+
+      <div class="list">
+        <div class="row">
+          <div class="row-left">
+            <div class="badge to2">ТО-2</div>
+            <div>
+              <div class="row-obj">Bank RBK, головной офис</div>
+              <div class="row-sub">Пассажирский лифт &middot; 2 шт.</div>
+            </div>
+          </div>
+          <div class="row-right">
+            <div class="row-date">4 авг</div>
+            <div class="row-tag soon">через 2 дня</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-left">
+            <div class="badge to1">ТО-1</div>
+            <div>
+              <div class="row-obj">ТРЦ MEGA</div>
+              <div class="row-sub">Мачтовый подъёмник</div>
+            </div>
+          </div>
+          <div class="row-right">
+            <div class="row-date">5 авг</div>
+            <div class="row-tag soon">через 3 дня</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-left">
+            <div class="badge to1">ТО-1</div>
+            <div>
+              <div class="row-obj">Technodom, склад</div>
+              <div class="row-sub">Грузовой лифт</div>
+            </div>
+          </div>
+          <div class="row-right">
+            <div class="row-date">6 авг</div>
+            <div class="row-tag plan">по графику</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-left">
+            <div class="badge to3">ТО-3</div>
+            <div>
+              <div class="row-obj">Almaty Mall</div>
+              <div class="row-sub">Эскалатор &middot; капремонт через 40 дн.</div>
+            </div>
+          </div>
+          <div class="row-right">
+            <div class="row-date">9 авг</div>
+            <div class="row-tag plan">по графику</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-left">
+            <div class="badge to1">ТО-1</div>
+            <div>
+              <div class="row-obj">Magnum, филиал №14</div>
+              <div class="row-sub">Кухонный подъёмник</div>
+            </div>
+          </div>
+          <div class="row-right">
+            <div class="row-date">11 авг</div>
+            <div class="row-tag plan">по графику</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="item active"><div class="dot"></div>Объекты</div>
+        <div class="item"><div class="dot"></div>График ТО</div>
+        <div class="item"><div class="dot"></div>Отчёты</div>
+        <div class="item"><div class="dot"></div>Уведомления</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
