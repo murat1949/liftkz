@@ -183,13 +183,17 @@
   .form-card .submit-btn:disabled { opacity: 0.6; }
   .debt-red { color: #f0654f !important; }
   @media (max-width: 480px) {
-    html, body { height: 100%; overflow: hidden; }
     body { padding: 0; align-items: stretch; justify-content: stretch; }
     .phone {
-      width: 100%; height: var(--app-height, 100vh);
-      border-radius: 0; padding: 0; border: none; box-shadow: none;
+      width: 100%; border-radius: 0; padding: 0; border: none; box-shadow: none;
     }
-    .screen { height: 100%; border-radius: 0; }
+    .screen { height: auto; display: block; border-radius: 0; }
+    .scroll-area { overflow: visible; padding-bottom: 70px; }
+    .statusbar { display: none; }
+    .footer {
+      position: fixed; left: 0; right: 0; bottom: 0; width: 100%;
+      z-index: 10;
+    }
   }
 </style>
 </head>
@@ -344,14 +348,6 @@
       document.querySelectorAll(".footer .item").forEach(i => i.classList.remove("active"));
       el.classList.add("active");
     }
-
-    function setAppHeight() {
-      document.documentElement.style.setProperty("--app-height", window.innerHeight + "px");
-    }
-    setAppHeight();
-    window.addEventListener("resize", setAppHeight);
-    window.addEventListener("orientationchange", setAppHeight);
-    window.scrollTo(0, 0);
 
     const SUPABASE_URL = "https://ilfxyvsqintvjbifqxvr.supabase.co";
     const SUPABASE_KEY = "sb_publishable_GEl1zhHAxT_i8zU2F86cOA_-G6n7uBH";
