@@ -149,6 +149,32 @@
   .empty-state .sub { color: #7ea892; font-size: 12px; line-height: 1.4; }
   .notify-row { border-left: 3px solid #f0834f; }
   .notify-row.ok-row { border-left: 3px solid #3fb87f; }
+
+  .gauge-card {
+    margin: 0 20px 18px; padding: 16px;
+    background: #12211a; border: 1px solid #1e352a; border-radius: 16px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .gauge-text { flex: 1; }
+  .gauge-pct { color: #ffffff; font-size: 26px; font-weight: 700; }
+  .gauge-label { color: #7ea892; font-size: 12px; margin-top: 2px; }
+
+  .form-card {
+    margin: 0 20px 16px; padding: 16px;
+    background: #12211a; border: 1px solid #1e352a; border-radius: 16px;
+  }
+  .form-card label { color: #7ea892; font-size: 11px; display: block; margin: 8px 0 4px; }
+  .form-card input, .form-card select {
+    width: 100%; background: #0c1712; border: 1px solid #2c5a3a; color: #eef4f0;
+    font-size: 13px; padding: 9px 10px; border-radius: 8px;
+  }
+  .form-card .submit-btn {
+    margin-top: 12px; width: 100%; background: linear-gradient(135deg, #3fb87f, #1d7a52);
+    color: #ffffff; font-weight: 600; font-size: 13px; padding: 10px; border: none;
+    border-radius: 10px; cursor: pointer;
+  }
+  .form-card .submit-btn:disabled { opacity: 0.6; }
+  .debt-red { color: #f0654f !important; }
 </style>
 </head>
 <body>
@@ -157,6 +183,7 @@
       <div class="statusbar"><span>9:41</span><span>●●●● 5G  100%</span></div>
 
       <div class="topbar">
+        <a href="landing.html" style="color:#7ea892; font-size:18px; text-decoration:none; margin-right:4px;">&#8592;</a>
         <div class="brand">
           <img src="assets/logo.png" alt="Лифт Кз Сервис" class="logo-img">
           <div>
@@ -171,6 +198,19 @@
         <div class="hero">
           <div class="hero-label">Парк оборудования</div>
           <div class="hero-title">Все объекты под контролем — одним взглядом</div>
+        </div>
+
+        <div class="gauge-card">
+          <svg viewBox="0 0 120 120" width="92" height="92">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#1c2e24" stroke-width="12"/>
+            <circle id="gaugeArc" cx="60" cy="60" r="52" fill="none" stroke="#3fb87f" stroke-width="12"
+              stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"
+              transform="rotate(-90 60 60)"/>
+          </svg>
+          <div class="gauge-text">
+            <div class="gauge-pct" id="gaugePct">—%</div>
+            <div class="gauge-label">в графике</div>
+          </div>
         </div>
 
         <div class="stats">
@@ -200,19 +240,65 @@
 
       <div class="view" id="viewFinance">
         <div class="section-title" style="padding-top:16px;">Финансы</div>
-        <div class="empty-state">
-          <div class="icon">&#128176;</div>
-          <div class="title">Раздел в разработке</div>
-          <div class="sub">Здесь будут оплаты по договорам, дебиторская задолженность и стоимость запчастей — вносит финансист.</div>
+
+        <div class="stats" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="stat">
+            <div class="stat-num ok" id="financePaid">—</div>
+            <div class="stat-label">Оплачено, ₸</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num" id="financeDebt">—</div>
+            <div class="stat-label">Дебиторка, ₸</div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <label>Клиент</label>
+          <select id="finClient">
+            <option>Bank RBK</option>
+            <option>ТРЦ MEGA</option>
+            <option>Technodom</option>
+            <option>Almaty Mall</option>
+            <option>Magnum</option>
+          </select>
+          <label>Оплачено, ₸</label>
+          <input type="number" id="finPaid" placeholder="0">
+          <label>Задолженность, ₸</label>
+          <input type="number" id="finDebt" placeholder="0">
+          <label>Комментарий</label>
+          <input type="text" id="finNote" placeholder="Например: аванс за ТО-2">
+          <button class="submit-btn" onclick="submitFinance(this)">Внести запись (роль: финансист)</button>
+        </div>
+
+        <div class="section-title">История записей</div>
+        <div class="list" id="financeList">
+          <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
         </div>
       </div>
 
       <div class="view" id="viewRequests">
         <div class="section-title" style="padding-top:16px;">Заявки / Клиенты</div>
-        <div class="empty-state">
-          <div class="icon">&#128100;</div>
-          <div class="title">Раздел в разработке</div>
-          <div class="sub">Здесь будут новые обращения, статус переговоров и заключённые договоры — ведёт диспетчер.</div>
+
+        <div class="form-card">
+          <label>Название компании / контакт</label>
+          <input type="text" id="reqName" placeholder="Например: ТОО СтройГрупп">
+          <label>Телефон / WhatsApp</label>
+          <input type="text" id="reqContact" placeholder="+7 700 000 00 00">
+          <label>Статус</label>
+          <select id="reqStatus">
+            <option>новая</option>
+            <option>в переговорах</option>
+            <option>договор подписан</option>
+            <option>отказ</option>
+          </select>
+          <label>Комментарий</label>
+          <input type="text" id="reqNote" placeholder="Например: интересует ТО на 12 лифтов">
+          <button class="submit-btn" onclick="submitRequest(this)">Внести заявку (роль: диспетчер)</button>
+        </div>
+
+        <div class="section-title">Список заявок</div>
+        <div class="list" id="requestsList">
+          <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
         </div>
       </div>
 
@@ -270,6 +356,12 @@
         const overdueCount = rows.filter(r => daysUntil(r.next_service_date) < 0).length;
         document.getElementById("statWeek").textContent = weekCount;
         document.getElementById("statOverdue").textContent = overdueCount;
+
+        const onTrack = rows.filter(r => daysUntil(r.next_service_date) > 7).length;
+        const pct = rows.length ? Math.round((onTrack / rows.length) * 100) : 0;
+        const circumference = 326.7;
+        document.getElementById("gaugeArc").setAttribute("stroke-dashoffset", circumference - (circumference * pct / 100));
+        document.getElementById("gaugePct").textContent = pct + "%";
 
         const list = document.getElementById("objList");
         list.innerHTML = rows.map(r => {
@@ -355,7 +447,107 @@
       }
     }
 
+    async function loadFinance() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/liftkz_finance?select=*&order=created_at.desc`,
+          { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
+        if (!res.ok) throw new Error(res.status);
+        const rows = await res.json();
+
+        const totalPaid = rows.reduce((s, r) => s + Number(r.amount_paid || 0), 0);
+        const totalDebt = rows.reduce((s, r) => s + Number(r.debt_amount || 0), 0);
+        document.getElementById("financePaid").textContent = totalPaid.toLocaleString("ru-RU");
+        const debtEl = document.getElementById("financeDebt");
+        debtEl.textContent = totalDebt.toLocaleString("ru-RU");
+        debtEl.classList.toggle("debt-red", totalDebt > 0);
+
+        const list = document.getElementById("financeList");
+        list.innerHTML = rows.length === 0
+          ? `<div class="row"><div class="row-left"><div class="row-obj">Записей пока нет</div></div></div>`
+          : rows.map(r => `
+            <div class="row">
+              <div class="row-left"><div>
+                <div class="row-obj">${r.client_name}</div>
+                <div class="row-sub">${r.note || ''}</div>
+              </div></div>
+              <div class="row-right">
+                <div class="row-date ok">+${Number(r.amount_paid||0).toLocaleString("ru-RU")} ₸</div>
+                ${Number(r.debt_amount||0) > 0 ? `<div class="row-tag debt-red">долг ${Number(r.debt_amount).toLocaleString("ru-RU")} ₸</div>` : ''}
+              </div>
+            </div>`).join("");
+      } catch (err) { console.error(err); }
+    }
+
+    async function submitFinance(btn) {
+      btn.disabled = true; btn.textContent = "Сохраняю...";
+      const body = {
+        client_name: document.getElementById("finClient").value,
+        amount_paid: Number(document.getElementById("finPaid").value || 0),
+        debt_amount: Number(document.getElementById("finDebt").value || 0),
+        note: document.getElementById("finNote").value
+      };
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/liftkz_finance`, {
+          method: "POST",
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(res.status);
+        document.getElementById("finPaid").value = "";
+        document.getElementById("finDebt").value = "";
+        document.getElementById("finNote").value = "";
+        await loadFinance();
+      } catch (err) { console.error(err); }
+      btn.disabled = false; btn.textContent = "Внести запись (роль: финансист)";
+    }
+
+    async function loadRequests() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/liftkz_requests?select=*&order=created_at.desc`,
+          { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
+        if (!res.ok) throw new Error(res.status);
+        const rows = await res.json();
+        const list = document.getElementById("requestsList");
+        list.innerHTML = rows.length === 0
+          ? `<div class="row"><div class="row-left"><div class="row-obj">Заявок пока нет</div></div></div>`
+          : rows.map(r => `
+            <div class="row">
+              <div class="row-left"><div>
+                <div class="row-obj">${r.name}</div>
+                <div class="row-sub">${r.contact || ''} ${r.note ? '&middot; ' + r.note : ''}</div>
+              </div></div>
+              <div class="row-right"><div class="row-tag plan">${r.status}</div></div>
+            </div>`).join("");
+      } catch (err) { console.error(err); }
+    }
+
+    async function submitRequest(btn) {
+      btn.disabled = true; btn.textContent = "Сохраняю...";
+      const body = {
+        name: document.getElementById("reqName").value,
+        contact: document.getElementById("reqContact").value,
+        status: document.getElementById("reqStatus").value,
+        note: document.getElementById("reqNote").value
+      };
+      if (!body.name) { btn.disabled = false; btn.textContent = "Внести заявку (роль: диспетчер)"; return; }
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/liftkz_requests`, {
+          method: "POST",
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(res.status);
+        document.getElementById("reqName").value = "";
+        document.getElementById("reqContact").value = "";
+        document.getElementById("reqNote").value = "";
+        await loadRequests();
+      } catch (err) { console.error(err); }
+      btn.disabled = false; btn.textContent = "Внести заявку (роль: диспетчер)";
+    }
+
     loadData();
+    loadFinance();
+    loadRequests();
   </script>
 </body>
 </html>
