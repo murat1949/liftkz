@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лифт Кз Сервис — Панель руководителя</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: #0d1512;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 16px;
+  }
+  .phone {
+    width: 375px;
+    background: linear-gradient(180deg, #0f1e17 0%, #0a1410 100%);
+    border-radius: 40px;
+    padding: 14px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    border: 2px solid #1c2b23;
+  }
+  .screen {
+    background: #0c1712;
+    border-radius: 28px;
+    overflow: hidden;
+    min-height: 720px;
+  }
+  .statusbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 22px 4px;
+    color: #dfe8e2;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px 18px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-img {
+    height: 38px;
+    width: auto;
+    display: block;
+  }
+  .brand-text { color: #eef4f0; font-size: 14px; font-weight: 600; line-height: 1.1; }
+  .brand-sub { color: #7ea892; font-size: 10px; letter-spacing: 0.06em; }
+  .menu-dot { color: #7ea892; font-size: 20px; }
+
+  .hero { padding: 4px 20px 18px; }
+  .hero-label { color: #7ea892; font-size: 12px; margin-bottom: 4px; }
+  .hero-title { color: #ffffff; font-size: 20px; font-weight: 600; line-height: 1.3; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 0 20px 18px;
+  }
+  .stat {
+    background: #12211a;
+    border: 1px solid #1e352a;
+    border-radius: 14px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-num { color: #ffffff; font-size: 20px; font-weight: 700; }
+  .stat-label { color: #8fac9d; font-size: 10.5px; margin-top: 2px; }
+  .stat.warn .stat-num { color: #f0b23f; }
+  .stat.ok .stat-num { color: #3fb87f; }
+
+  .section-title {
+    color: #cfe0d7; font-size: 13px; font-weight: 600;
+    padding: 6px 20px 10px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .section-title span.all { color: #7ea892; font-size: 12px; font-weight: 400; }
+
+  .list { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .row {
+    background: #101d17;
+    border: 1px solid #1c2e24;
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .row-left { display: flex; align-items: center; gap: 10px; }
+  .badge {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #0c1712;
+  }
+  .badge.to1 { background: #6fc98f; }
+  .badge.to2 { background: #f0c23f; }
+  .badge.to3 { background: #f0834f; }
+  .row-obj { color: #eef4f0; font-size: 13.5px; font-weight: 500; }
+  .row-sub { color: #7ea892; font-size: 11.5px; margin-top: 1px; }
+  .row-right { text-align: right; }
+  .row-date { color: #eef4f0; font-size: 12.5px; font-weight: 600; }
+  .row-tag { font-size: 10px; margin-top: 2px; }
+  .row-tag.soon { color: #f0b23f; }
+  .row-tag.plan { color: #7ea892; }
+  .row-actions { padding: 0 14px 4px; }
+  .done-btn {
+    background: #17301f;
+    border: 1px solid #2c5a3a;
+    color: #6fc98f;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+    cursor: pointer;
+  }
+  .done-btn:active { background: #1f4028; }
+  .done-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .footer {
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 12px 0 18px; border-top: 1px solid #1c2e24; margin-top: 6px;
+  }
+  .footer .item { color: #5c7b6c; font-size: 10px; text-align: center; cursor: pointer; }
+  .footer .item.active { color: #3fb87f; }
+  .footer .dot {
+    width: 20px; height: 20px; margin: 0 auto 3px;
+    border-radius: 6px; background: currentColor; opacity: 0.15;
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+  .empty-state {
+    margin: 24px 20px; padding: 28px 18px;
+    background: #12211a; border: 1px dashed #2c5a3a; border-radius: 16px;
+    text-align: center;
+  }
+  .empty-state .icon { font-size: 26px; margin-bottom: 10px; }
+  .empty-state .title { color: #eef4f0; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .empty-state .sub { color: #7ea892; font-size: 12px; line-height: 1.4; }
+  .notify-row { border-left: 3px solid #f0834f; }
+  .notify-row.ok-row { border-left: 3px solid #3fb87f; }
+
+  .gauge-card {
+    margin: 0 20px 18px; padding: 16px;
+    background: #12211a; border: 1px solid #1e352a; border-radius: 16px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .gauge-text { flex: 1; }
+  .gauge-pct { color: #ffffff; font-size: 26px; font-weight: 700; }
+  .gauge-label { color: #7ea892; font-size: 12px; margin-top: 2px; }
+
+  .form-card {
+    margin: 0 20px 16px; padding: 16px;
+    background: #12211a; border: 1px solid #1e352a; border-radius: 16px;
+  }
+  .form-card label { color: #7ea892; font-size: 11px; display: block; margin: 8px 0 4px; }
+  .form-card input, .form-card select {
+    width: 100%; background: #0c1712; border: 1px solid #2c5a3a; color: #eef4f0;
+    font-size: 13px; padding: 9px 10px; border-radius: 8px;
+  }
+  .form-card .submit-btn {
+    margin-top: 12px; width: 100%; background: linear-gradient(135deg, #3fb87f, #1d7a52);
+    color: #ffffff; font-weight: 600; font-size: 13px; padding: 10px; border: none;
+    border-radius: 10px; cursor: pointer;
+  }
+  .form-card .submit-btn:disabled { opacity: 0.6; }
+  .debt-red { color: #f0654f !important; }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="screen">
+      <div class="statusbar"><span>9:41</span><span>●●●● 5G  100%</span></div>
+
+      <div class="topbar">
+        <a href="index.html" style="color:#7ea892; font-size:18px; text-decoration:none; margin-right:4px;">&#8592;</a>
+        <div class="brand">
+          <img src="assets/logo.png" alt="Лифт Кз Сервис" class="logo-img">
+          <div>
+            <div class="brand-text">Лифт Кз Сервис</div>
+            <div class="brand-sub">ПАНЕЛЬ РУКОВОДИТЕЛЯ</div>
+          </div>
+        </div>
+        <div class="menu-dot">&#8942;</div>
+      </div>
+
+      <div class="view active" id="viewObjects">
+        <div class="hero">
+          <div class="hero-label">Парк оборудования</div>
+          <div class="hero-title">Все объекты под контролем — одним взглядом</div>
+        </div>
+
+        <div class="gauge-card">
+          <svg viewBox="0 0 120 120" width="92" height="92">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#1c2e24" stroke-width="12"/>
+            <circle id="gaugeArc" cx="60" cy="60" r="52" fill="none" stroke="#3fb87f" stroke-width="12"
+              stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"
+              transform="rotate(-90 60 60)"/>
+          </svg>
+          <div class="gauge-text">
+            <div class="gauge-pct" id="gaugePct">—%</div>
+            <div class="gauge-label">в графике</div>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-num" id="statTotal">350</div>
+            <div class="stat-label">Всего в парке</div>
+          </div>
+          <div class="stat warn">
+            <div class="stat-num" id="statWeek">—</div>
+            <div class="stat-label">ТО на этой неделе</div>
+          </div>
+          <div class="stat ok">
+            <div class="stat-num" id="statOverdue">—</div>
+            <div class="stat-label">Просрочено</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          Ближайшее обслуживание
+          <span class="all">все объекты &rsaquo;</span>
+        </div>
+
+        <div class="list" id="objList">
+          <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
+        </div>
+      </div>
+
+      <div class="view" id="viewFinance">
+        <div class="section-title" style="padding-top:16px;">Финансы</div>
+
+        <div class="stats" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="stat">
+            <div class="stat-num ok" id="financePaid">—</div>
+            <div class="stat-label">Оплачено, ₸</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num" id="financeDebt">—</div>
+            <div class="stat-label">Дебиторка, ₸</div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <label>Клиент</label>
+          <select id="finClient">
+            <option>Bank RBK</option>
+            <option>ТРЦ MEGA</option>
+            <option>Technodom</option>
+            <option>Almaty Mall</option>
+            <option>Magnum</option>
+          </select>
+          <label>Оплачено, ₸</label>
+          <input type="number" id="finPaid" placeholder="0">
+          <label>Задолженность, ₸</label>
+          <input type="number" id="finDebt" placeholder="0">
+          <label>Комментарий</label>
+          <input type="text" id="finNote" placeholder="Например: аванс за ТО-2">
+          <button class="submit-btn" onclick="submitFinance(this)">Внести запись (роль: финансист)</button>
+        </div>
+
+        <div class="section-title">История записей</div>
+        <div class="list" id="financeList">
+          <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
+        </div>
+      </div>
+
+      <div class="view" id="viewRequests">
+        <div class="section-title" style="padding-top:16px;">Заявки / Клиенты</div>
+
+        <div class="form-card">
+          <label>Название компании / контакт</label>
+          <input type="text" id="reqName" placeholder="Например: ТОО СтройГрупп">
+          <label>Телефон / WhatsApp</label>
+          <input type="text" id="reqContact" placeholder="+7 700 000 00 00">
+          <label>Статус</label>
+          <select id="reqStatus">
+            <option>новая</option>
+            <option>в переговорах</option>
+            <option>договор подписан</option>
+            <option>отказ</option>
+          </select>
+          <label>Комментарий</label>
+          <input type="text" id="reqNote" placeholder="Например: интересует ТО на 12 лифтов">
+          <button class="submit-btn" onclick="submitRequest(this)">Внести заявку (роль: диспетчер)</button>
+        </div>
+
+        <div class="section-title">Список заявок</div>
+        <div class="list" id="requestsList">
+          <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
+        </div>
+      </div>
+
+      <div class="view" id="viewNotify">
+        <div class="section-title" style="padding-top:16px;">Уведомления</div>
+        <div class="list" id="notifyList">
+          <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="item active" data-view="viewObjects" onclick="showView('viewObjects', this)"><div class="dot"></div>Объекты</div>
+        <div class="item" data-view="viewFinance" onclick="showView('viewFinance', this)"><div class="dot"></div>Финансы</div>
+        <div class="item" data-view="viewRequests" onclick="showView('viewRequests', this)"><div class="dot"></div>Заявки</div>
+        <div class="item" data-view="viewNotify" onclick="showView('viewNotify', this)"><div class="dot"></div>Уведомления</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showView(id, el) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      document.querySelectorAll(".footer .item").forEach(i => i.classList.remove("active"));
+      el.classList.add("active");
+    }
+
+    const SUPABASE_URL = "https://ilfxyvsqintvjbifqxvr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_GEl1zhHAxT_i8zU2F86cOA_-G6n7uBH";
+
+    const badgeClass = { "ТО-1": "to1", "ТО-2": "to2", "ТО-3": "to3" };
+    const months = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      return `${d.getDate()} ${months[d.getMonth()]}`;
+    }
+
+    function daysUntil(dateStr) {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const target = new Date(dateStr); target.setHours(0,0,0,0);
+      return Math.round((target - today) / 86400000);
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/liftkz_objects?select=*&order=next_service_date.asc`,
+          { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+        );
+        if (!res.ok) throw new Error("Ошибка запроса: " + res.status);
+        const rows = await res.json();
+
+        const weekCount = rows.filter(r => daysUntil(r.next_service_date) >= 0 && daysUntil(r.next_service_date) <= 7).length;
+        const overdueCount = rows.filter(r => daysUntil(r.next_service_date) < 0).length;
+        document.getElementById("statWeek").textContent = weekCount;
+        document.getElementById("statOverdue").textContent = overdueCount;
+
+        const onTrack = rows.filter(r => daysUntil(r.next_service_date) > 7).length;
+        const pct = rows.length ? Math.round((onTrack / rows.length) * 100) : 0;
+        const circumference = 326.7;
+        document.getElementById("gaugeArc").setAttribute("stroke-dashoffset", circumference - (circumference * pct / 100));
+        document.getElementById("gaugePct").textContent = pct + "%";
+
+        const list = document.getElementById("objList");
+        list.innerHTML = rows.map(r => {
+          const d = daysUntil(r.next_service_date);
+          let tag, tagClass;
+          if (d < 0) { tag = "просрочено"; tagClass = "soon"; }
+          else if (d <= 7) { tag = d === 0 ? "сегодня" : `через ${d} дн.`; tagClass = "soon"; }
+          else { tag = "по графику"; tagClass = "plan"; }
+          const qtyText = r.quantity && r.quantity > 1 ? ` &middot; ${r.quantity} шт.` : "";
+          return `
+            <div class="row" style="flex-direction: column; align-items: stretch;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div class="row-left">
+                  <div class="badge ${badgeClass[r.to_level] || 'to1'}">${r.to_level || ''}</div>
+                  <div>
+                    <div class="row-obj">${r.client_name}${r.object_name && r.object_name !== r.client_name ? ', ' + r.object_name : ''}</div>
+                    <div class="row-sub">${r.equipment_type || ''}${qtyText}</div>
+                  </div>
+                </div>
+                <div class="row-right">
+                  <div class="row-date">${formatDate(r.next_service_date)}</div>
+                  <div class="row-tag ${tagClass}">${tag}</div>
+                </div>
+              </div>
+              <button class="done-btn" onclick="markDone(${r.id}, '${r.to_level}', this)">&#10003; Отметить ТО выполнено</button>
+            </div>`;
+        }).join("");
+
+        const notifyList = document.getElementById("notifyList");
+        const alerts = rows.filter(r => daysUntil(r.next_service_date) <= 7);
+        if (alerts.length === 0) {
+          notifyList.innerHTML = `<div class="row"><div class="row-left"><div class="row-obj">Нет активных уведомлений</div></div></div>`;
+        } else {
+          notifyList.innerHTML = alerts.map(r => {
+            const d = daysUntil(r.next_service_date);
+            const overdue = d < 0;
+            const msg = overdue ? `Просрочено ТО — ${Math.abs(d)} дн. назад` : (d === 0 ? "ТО сегодня" : `ТО через ${d} дн.`);
+            return `
+              <div class="row notify-row ${overdue ? '' : 'ok-row'}">
+                <div class="row-left">
+                  <div>
+                    <div class="row-obj">${r.client_name}${r.object_name && r.object_name !== r.client_name ? ', ' + r.object_name : ''}</div>
+                    <div class="row-sub">${msg}</div>
+                  </div>
+                </div>
+              </div>`;
+          }).join("");
+        }
+      } catch (err) {
+        document.getElementById("objList").innerHTML =
+          `<div class="row"><div class="row-left"><div class="row-obj">Не удалось загрузить данные</div></div></div>`;
+        console.error(err);
+      }
+    }
+
+    const intervalDays = { "ТО-1": 30, "ТО-2": 90, "ТО-3": 365 };
+
+    async function markDone(id, toLevel, btn) {
+      btn.disabled = true;
+      btn.textContent = "Сохраняю...";
+      const today = new Date();
+      const next = new Date(today);
+      next.setDate(next.getDate() + (intervalDays[toLevel] || 30));
+      const toISO = d => d.toISOString().slice(0, 10);
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/liftkz_objects?id=eq.${id}`, {
+          method: "PATCH",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal"
+          },
+          body: JSON.stringify({ last_service_date: toISO(today), next_service_date: toISO(next) })
+        });
+        if (!res.ok) throw new Error("Ошибка записи: " + res.status);
+        await loadData();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "Ошибка, повторить";
+        console.error(err);
+      }
+    }
+
+    async function loadFinance() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/liftkz_finance?select=*&order=created_at.desc`,
+          { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
+        if (!res.ok) throw new Error(res.status);
+        const rows = await res.json();
+
+        const totalPaid = rows.reduce((s, r) => s + Number(r.amount_paid || 0), 0);
+        const totalDebt = rows.reduce((s, r) => s + Number(r.debt_amount || 0), 0);
+        document.getElementById("financePaid").textContent = totalPaid.toLocaleString("ru-RU");
+        const debtEl = document.getElementById("financeDebt");
+        debtEl.textContent = totalDebt.toLocaleString("ru-RU");
+        debtEl.classList.toggle("debt-red", totalDebt > 0);
+
+        const list = document.getElementById("financeList");
+        list.innerHTML = rows.length === 0
+          ? `<div class="row"><div class="row-left"><div class="row-obj">Записей пока нет</div></div></div>`
+          : rows.map(r => `
+            <div class="row">
+              <div class="row-left"><div>
+                <div class="row-obj">${r.client_name}</div>
+                <div class="row-sub">${r.note || ''}</div>
+              </div></div>
+              <div class="row-right">
+                <div class="row-date ok">+${Number(r.amount_paid||0).toLocaleString("ru-RU")} ₸</div>
+                ${Number(r.debt_amount||0) > 0 ? `<div class="row-tag debt-red">долг ${Number(r.debt_amount).toLocaleString("ru-RU")} ₸</div>` : ''}
+              </div>
+            </div>`).join("");
+      } catch (err) { console.error(err); }
+    }
+
+    async function submitFinance(btn) {
+      btn.disabled = true; btn.textContent = "Сохраняю...";
+      const body = {
+        client_name: document.getElementById("finClient").value,
+        amount_paid: Number(document.getElementById("finPaid").value || 0),
+        debt_amount: Number(document.getElementById("finDebt").value || 0),
+        note: document.getElementById("finNote").value
+      };
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/liftkz_finance`, {
+          method: "POST",
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(res.status);
+        document.getElementById("finPaid").value = "";
+        document.getElementById("finDebt").value = "";
+        document.getElementById("finNote").value = "";
+        await loadFinance();
+      } catch (err) { console.error(err); }
+      btn.disabled = false; btn.textContent = "Внести запись (роль: финансист)";
+    }
+
+    async function loadRequests() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/liftkz_requests?select=*&order=created_at.desc`,
+          { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
+        if (!res.ok) throw new Error(res.status);
+        const rows = await res.json();
+        const list = document.getElementById("requestsList");
+        list.innerHTML = rows.length === 0
+          ? `<div class="row"><div class="row-left"><div class="row-obj">Заявок пока нет</div></div></div>`
+          : rows.map(r => `
+            <div class="row">
+              <div class="row-left"><div>
+                <div class="row-obj">${r.name}</div>
+                <div class="row-sub">${r.contact || ''} ${r.note ? '&middot; ' + r.note : ''}</div>
+              </div></div>
+              <div class="row-right"><div class="row-tag plan">${r.status}</div></div>
+            </div>`).join("");
+      } catch (err) { console.error(err); }
+    }
+
+    async function submitRequest(btn) {
+      btn.disabled = true; btn.textContent = "Сохраняю...";
+      const body = {
+        name: document.getElementById("reqName").value,
+        contact: document.getElementById("reqContact").value,
+        status: document.getElementById("reqStatus").value,
+        note: document.getElementById("reqNote").value
+      };
+      if (!body.name) { btn.disabled = false; btn.textContent = "Внести заявку (роль: диспетчер)"; return; }
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/liftkz_requests`, {
+          method: "POST",
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(res.status);
+        document.getElementById("reqName").value = "";
+        document.getElementById("reqContact").value = "";
+        document.getElementById("reqNote").value = "";
+        await loadRequests();
+      } catch (err) { console.error(err); }
+      btn.disabled = false; btn.textContent = "Внести заявку (роль: диспетчер)";
+    }
+
+    loadData();
+    loadFinance();
+    loadRequests();
+  </script>
+</body>
+</html>
