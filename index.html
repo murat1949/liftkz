@@ -111,6 +111,20 @@
   .row-tag { font-size: 10px; margin-top: 2px; }
   .row-tag.soon { color: #f0b23f; }
   .row-tag.plan { color: #7ea892; }
+  .row-actions { padding: 0 14px 4px; }
+  .done-btn {
+    background: #17301f;
+    border: 1px solid #2c5a3a;
+    color: #6fc98f;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+    cursor: pointer;
+  }
+  .done-btn:active { background: #1f4028; }
+  .done-btn:disabled { opacity: 0.5; cursor: default; }
 
   .footer {
     display: flex; justify-content: space-around; align-items: center;
@@ -219,23 +233,56 @@
           else { tag = "по графику"; tagClass = "plan"; }
           const qtyText = r.quantity && r.quantity > 1 ? ` &middot; ${r.quantity} шт.` : "";
           return `
-            <div class="row">
-              <div class="row-left">
-                <div class="badge ${badgeClass[r.to_level] || 'to1'}">${r.to_level || ''}</div>
-                <div>
-                  <div class="row-obj">${r.client_name}${r.object_name && r.object_name !== r.client_name ? ', ' + r.object_name : ''}</div>
-                  <div class="row-sub">${r.equipment_type || ''}${qtyText}</div>
+            <div class="row" style="flex-direction: column; align-items: stretch;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div class="row-left">
+                  <div class="badge ${badgeClass[r.to_level] || 'to1'}">${r.to_level || ''}</div>
+                  <div>
+                    <div class="row-obj">${r.client_name}${r.object_name && r.object_name !== r.client_name ? ', ' + r.object_name : ''}</div>
+                    <div class="row-sub">${r.equipment_type || ''}${qtyText}</div>
+                  </div>
+                </div>
+                <div class="row-right">
+                  <div class="row-date">${formatDate(r.next_service_date)}</div>
+                  <div class="row-tag ${tagClass}">${tag}</div>
                 </div>
               </div>
-              <div class="row-right">
-                <div class="row-date">${formatDate(r.next_service_date)}</div>
-                <div class="row-tag ${tagClass}">${tag}</div>
-              </div>
+              <button class="done-btn" onclick="markDone(${r.id}, '${r.to_level}', this)">&#10003; Отметить ТО выполнено</button>
             </div>`;
         }).join("");
       } catch (err) {
         document.getElementById("objList").innerHTML =
           `<div class="row"><div class="row-left"><div class="row-obj">Не удалось загрузить данные</div></div></div>`;
+        console.error(err);
+      }
+    }
+
+    const intervalDays = { "ТО-1": 30, "ТО-2": 90, "ТО-3": 365 };
+
+    async function markDone(id, toLevel, btn) {
+      btn.disabled = true;
+      btn.textContent = "Сохраняю...";
+      const today = new Date();
+      const next = new Date(today);
+      next.setDate(next.getDate() + (intervalDays[toLevel] || 30));
+      const toISO = d => d.toISOString().slice(0, 10);
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/liftkz_objects?id=eq.${id}`, {
+          method: "PATCH",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal"
+          },
+          body: JSON.stringify({ last_service_date: toISO(today), next_service_date: toISO(next) })
+        });
+        if (!res.ok) throw new Error("Ошибка записи: " + res.status);
+        await loadData();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "Ошибка, повторить";
         console.error(err);
       }
     }
