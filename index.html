@@ -147,15 +147,15 @@
 
       <div class="stats">
         <div class="stat">
-          <div class="stat-num">350</div>
+          <div class="stat-num" id="statTotal">350</div>
           <div class="stat-label">Всего в парке</div>
         </div>
         <div class="stat warn">
-          <div class="stat-num">12</div>
+          <div class="stat-num" id="statWeek">—</div>
           <div class="stat-label">ТО на этой неделе</div>
         </div>
         <div class="stat ok">
-          <div class="stat-num">0</div>
+          <div class="stat-num" id="statOverdue">—</div>
           <div class="stat-label">Просрочено</div>
         </div>
       </div>
@@ -165,76 +165,8 @@
         <span class="all">все объекты &rsaquo;</span>
       </div>
 
-      <div class="list">
-        <div class="row">
-          <div class="row-left">
-            <div class="badge to2">ТО-2</div>
-            <div>
-              <div class="row-obj">Bank RBK, головной офис</div>
-              <div class="row-sub">Пассажирский лифт &middot; 2 шт.</div>
-            </div>
-          </div>
-          <div class="row-right">
-            <div class="row-date">4 авг</div>
-            <div class="row-tag soon">через 2 дня</div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="row-left">
-            <div class="badge to1">ТО-1</div>
-            <div>
-              <div class="row-obj">ТРЦ MEGA</div>
-              <div class="row-sub">Мачтовый подъёмник</div>
-            </div>
-          </div>
-          <div class="row-right">
-            <div class="row-date">5 авг</div>
-            <div class="row-tag soon">через 3 дня</div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="row-left">
-            <div class="badge to1">ТО-1</div>
-            <div>
-              <div class="row-obj">Technodom, склад</div>
-              <div class="row-sub">Грузовой лифт</div>
-            </div>
-          </div>
-          <div class="row-right">
-            <div class="row-date">6 авг</div>
-            <div class="row-tag plan">по графику</div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="row-left">
-            <div class="badge to3">ТО-3</div>
-            <div>
-              <div class="row-obj">Almaty Mall</div>
-              <div class="row-sub">Эскалатор &middot; капремонт через 40 дн.</div>
-            </div>
-          </div>
-          <div class="row-right">
-            <div class="row-date">9 авг</div>
-            <div class="row-tag plan">по графику</div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="row-left">
-            <div class="badge to1">ТО-1</div>
-            <div>
-              <div class="row-obj">Magnum, филиал №14</div>
-              <div class="row-sub">Кухонный подъёмник</div>
-            </div>
-          </div>
-          <div class="row-right">
-            <div class="row-date">11 авг</div>
-            <div class="row-tag plan">по графику</div>
-          </div>
-        </div>
+      <div class="list" id="objList">
+        <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
       </div>
 
       <div class="footer">
@@ -245,5 +177,70 @@
       </div>
     </div>
   </div>
+
+  <script>
+    const SUPABASE_URL = "https://ilfxyvsqintvjbifqxvr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_GEl1zhHAxT_i8zU2F86cOA_-G6n7uBH";
+
+    const badgeClass = { "ТО-1": "to1", "ТО-2": "to2", "ТО-3": "to3" };
+    const months = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      return `${d.getDate()} ${months[d.getMonth()]}`;
+    }
+
+    function daysUntil(dateStr) {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const target = new Date(dateStr); target.setHours(0,0,0,0);
+      return Math.round((target - today) / 86400000);
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/liftkz_objects?select=*&order=next_service_date.asc`,
+          { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+        );
+        if (!res.ok) throw new Error("Ошибка запроса: " + res.status);
+        const rows = await res.json();
+
+        const weekCount = rows.filter(r => daysUntil(r.next_service_date) >= 0 && daysUntil(r.next_service_date) <= 7).length;
+        const overdueCount = rows.filter(r => daysUntil(r.next_service_date) < 0).length;
+        document.getElementById("statWeek").textContent = weekCount;
+        document.getElementById("statOverdue").textContent = overdueCount;
+
+        const list = document.getElementById("objList");
+        list.innerHTML = rows.map(r => {
+          const d = daysUntil(r.next_service_date);
+          let tag, tagClass;
+          if (d < 0) { tag = "просрочено"; tagClass = "soon"; }
+          else if (d <= 7) { tag = d === 0 ? "сегодня" : `через ${d} дн.`; tagClass = "soon"; }
+          else { tag = "по графику"; tagClass = "plan"; }
+          const qtyText = r.quantity && r.quantity > 1 ? ` &middot; ${r.quantity} шт.` : "";
+          return `
+            <div class="row">
+              <div class="row-left">
+                <div class="badge ${badgeClass[r.to_level] || 'to1'}">${r.to_level || ''}</div>
+                <div>
+                  <div class="row-obj">${r.client_name}${r.object_name && r.object_name !== r.client_name ? ', ' + r.object_name : ''}</div>
+                  <div class="row-sub">${r.equipment_type || ''}${qtyText}</div>
+                </div>
+              </div>
+              <div class="row-right">
+                <div class="row-date">${formatDate(r.next_service_date)}</div>
+                <div class="row-tag ${tagClass}">${tag}</div>
+              </div>
+            </div>`;
+        }).join("");
+      } catch (err) {
+        document.getElementById("objList").innerHTML =
+          `<div class="row"><div class="row-left"><div class="row-obj">Не удалось загрузить данные</div></div></div>`;
+        console.error(err);
+      }
+    }
+
+    loadData();
+  </script>
 </body>
 </html>
