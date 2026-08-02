@@ -130,12 +130,25 @@
     display: flex; justify-content: space-around; align-items: center;
     padding: 12px 0 18px; border-top: 1px solid #1c2e24; margin-top: 6px;
   }
-  .footer .item { color: #5c7b6c; font-size: 10px; text-align: center; }
+  .footer .item { color: #5c7b6c; font-size: 10px; text-align: center; cursor: pointer; }
   .footer .item.active { color: #3fb87f; }
   .footer .dot {
     width: 20px; height: 20px; margin: 0 auto 3px;
     border-radius: 6px; background: currentColor; opacity: 0.15;
   }
+
+  .view { display: none; }
+  .view.active { display: block; }
+  .empty-state {
+    margin: 24px 20px; padding: 28px 18px;
+    background: #12211a; border: 1px dashed #2c5a3a; border-radius: 16px;
+    text-align: center;
+  }
+  .empty-state .icon { font-size: 26px; margin-bottom: 10px; }
+  .empty-state .title { color: #eef4f0; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .empty-state .sub { color: #7ea892; font-size: 12px; line-height: 1.4; }
+  .notify-row { border-left: 3px solid #f0834f; }
+  .notify-row.ok-row { border-left: 3px solid #3fb87f; }
 </style>
 </head>
 <body>
@@ -154,45 +167,79 @@
         <div class="menu-dot">&#8942;</div>
       </div>
 
-      <div class="hero">
-        <div class="hero-label">Парк оборудования</div>
-        <div class="hero-title">Все объекты под контролем — одним взглядом</div>
+      <div class="view active" id="viewObjects">
+        <div class="hero">
+          <div class="hero-label">Парк оборудования</div>
+          <div class="hero-title">Все объекты под контролем — одним взглядом</div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-num" id="statTotal">350</div>
+            <div class="stat-label">Всего в парке</div>
+          </div>
+          <div class="stat warn">
+            <div class="stat-num" id="statWeek">—</div>
+            <div class="stat-label">ТО на этой неделе</div>
+          </div>
+          <div class="stat ok">
+            <div class="stat-num" id="statOverdue">—</div>
+            <div class="stat-label">Просрочено</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          Ближайшее обслуживание
+          <span class="all">все объекты &rsaquo;</span>
+        </div>
+
+        <div class="list" id="objList">
+          <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
+        </div>
       </div>
 
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-num" id="statTotal">350</div>
-          <div class="stat-label">Всего в парке</div>
-        </div>
-        <div class="stat warn">
-          <div class="stat-num" id="statWeek">—</div>
-          <div class="stat-label">ТО на этой неделе</div>
-        </div>
-        <div class="stat ok">
-          <div class="stat-num" id="statOverdue">—</div>
-          <div class="stat-label">Просрочено</div>
+      <div class="view" id="viewFinance">
+        <div class="section-title" style="padding-top:16px;">Финансы</div>
+        <div class="empty-state">
+          <div class="icon">&#128176;</div>
+          <div class="title">Раздел в разработке</div>
+          <div class="sub">Здесь будут оплаты по договорам, дебиторская задолженность и стоимость запчастей — вносит финансист.</div>
         </div>
       </div>
 
-      <div class="section-title">
-        Ближайшее обслуживание
-        <span class="all">все объекты &rsaquo;</span>
+      <div class="view" id="viewRequests">
+        <div class="section-title" style="padding-top:16px;">Заявки / Клиенты</div>
+        <div class="empty-state">
+          <div class="icon">&#128100;</div>
+          <div class="title">Раздел в разработке</div>
+          <div class="sub">Здесь будут новые обращения, статус переговоров и заключённые договоры — ведёт диспетчер.</div>
+        </div>
       </div>
 
-      <div class="list" id="objList">
-        <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
+      <div class="view" id="viewNotify">
+        <div class="section-title" style="padding-top:16px;">Уведомления</div>
+        <div class="list" id="notifyList">
+          <div class="row"><div class="row-left"><div class="row-obj">Загрузка...</div></div></div>
+        </div>
       </div>
 
       <div class="footer">
-        <div class="item active"><div class="dot"></div>Объекты</div>
-        <div class="item"><div class="dot"></div>График ТО</div>
-        <div class="item"><div class="dot"></div>Отчёты</div>
-        <div class="item"><div class="dot"></div>Уведомления</div>
+        <div class="item active" data-view="viewObjects" onclick="showView('viewObjects', this)"><div class="dot"></div>Объекты</div>
+        <div class="item" data-view="viewFinance" onclick="showView('viewFinance', this)"><div class="dot"></div>Финансы</div>
+        <div class="item" data-view="viewRequests" onclick="showView('viewRequests', this)"><div class="dot"></div>Заявки</div>
+        <div class="item" data-view="viewNotify" onclick="showView('viewNotify', this)"><div class="dot"></div>Уведомления</div>
       </div>
     </div>
   </div>
 
   <script>
+    function showView(id, el) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      document.querySelectorAll(".footer .item").forEach(i => i.classList.remove("active"));
+      el.classList.add("active");
+    }
+
     const SUPABASE_URL = "https://ilfxyvsqintvjbifqxvr.supabase.co";
     const SUPABASE_KEY = "sb_publishable_GEl1zhHAxT_i8zU2F86cOA_-G6n7uBH";
 
@@ -250,6 +297,27 @@
               <button class="done-btn" onclick="markDone(${r.id}, '${r.to_level}', this)">&#10003; Отметить ТО выполнено</button>
             </div>`;
         }).join("");
+
+        const notifyList = document.getElementById("notifyList");
+        const alerts = rows.filter(r => daysUntil(r.next_service_date) <= 7);
+        if (alerts.length === 0) {
+          notifyList.innerHTML = `<div class="row"><div class="row-left"><div class="row-obj">Нет активных уведомлений</div></div></div>`;
+        } else {
+          notifyList.innerHTML = alerts.map(r => {
+            const d = daysUntil(r.next_service_date);
+            const overdue = d < 0;
+            const msg = overdue ? `Просрочено ТО — ${Math.abs(d)} дн. назад` : (d === 0 ? "ТО сегодня" : `ТО через ${d} дн.`);
+            return `
+              <div class="row notify-row ${overdue ? '' : 'ok-row'}">
+                <div class="row-left">
+                  <div>
+                    <div class="row-obj">${r.client_name}${r.object_name && r.object_name !== r.client_name ? ', ' + r.object_name : ''}</div>
+                    <div class="row-sub">${msg}</div>
+                  </div>
+                </div>
+              </div>`;
+          }).join("");
+        }
       } catch (err) {
         document.getElementById("objList").innerHTML =
           `<div class="row"><div class="row-left"><div class="row-obj">Не удалось загрузить данные</div></div></div>`;
