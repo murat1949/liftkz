@@ -352,6 +352,17 @@
     const SUPABASE_URL = "https://ilfxyvsqintvjbifqxvr.supabase.co";
     const SUPABASE_KEY = "sb_publishable_GEl1zhHAxT_i8zU2F86cOA_-G6n7uBH";
 
+    const TG_TOKEN = "8984664709:AAF83MQd5lzDbGux0hnllWuyO-u0DDg0rdo";
+    const TG_CHAT = "843682379";
+
+    function sendTelegram(text) {
+      fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: TG_CHAT, text, parse_mode: "HTML" })
+      }).catch(err => console.warn("Telegram уведомление не отправлено:", err));
+    }
+
     const badgeClass = { "ТО-1": "to1", "ТО-2": "to2", "ТО-3": "to3" };
     const months = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
 
@@ -462,6 +473,7 @@
           body: JSON.stringify({ last_service_date: toISO(today), next_service_date: toISO(next) })
         });
         if (!res.ok) throw new Error("Ошибка записи: " + res.status);
+        sendTelegram(`✅ ТО выполнено — объект #${id} (${toLevel}). Следующее: ${toISO(next)}`);
         await loadData();
       } catch (err) {
         btn.disabled = false;
@@ -516,6 +528,11 @@
           body: JSON.stringify(body)
         });
         if (!res.ok) throw new Error(res.status);
+        if (body.debt_amount > 0) {
+          sendTelegram(`⚠️ Задолженность: ${body.client_name} — ${body.debt_amount.toLocaleString("ru-RU")} ₸${body.note ? " (" + body.note + ")" : ""}`);
+        } else {
+          sendTelegram(`💰 Оплата внесена: ${body.client_name} — ${body.amount_paid.toLocaleString("ru-RU")} ₸`);
+        }
         document.getElementById("finPaid").value = "";
         document.getElementById("finDebt").value = "";
         document.getElementById("finNote").value = "";
@@ -560,6 +577,7 @@
           body: JSON.stringify(body)
         });
         if (!res.ok) throw new Error(res.status);
+        sendTelegram(`📞 Новая заявка: ${body.name}${body.contact ? ", " + body.contact : ""} — статус: ${body.status}`);
         document.getElementById("reqName").value = "";
         document.getElementById("reqContact").value = "";
         document.getElementById("reqNote").value = "";
